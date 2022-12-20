@@ -3,6 +3,8 @@ import logo from './Images/Logo.png'
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ThreeDots } from 'react-loader-spinner'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 
 
@@ -13,13 +15,14 @@ export default function Login() {
   const [disabled, setDisabled] = useState("")
   const [opacity, setOpacity] = useState("100%")
   const [carregar, setCarregar] = useState(false)
+  const navigate = useNavigate()
 
   return (<div>
     <Logo><img src={logo}></img></Logo>
     <Corpo onSubmit={entrarApp}>
       <Dados><Input background={cor} type="email" placeholder="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={disabled}></Input></Dados>
       <Dados><Input background={cor} type="password" placeholder="senha" value={password} onChange={e => setSenha(e.target.value)} required disabled={disabled}></Input></Dados>
-      <Link to="/habitos"><Dados>
+      <Dados>
         <Entrar opacity={opacity} disabled={disabled}>
           <ThreeDots
             height="80"
@@ -31,7 +34,7 @@ export default function Login() {
             wrapperClassName=""
             visible={carregar}
           /><Texto carregar={carregar}>Entrar</Texto>
-        </Entrar></Dados></Link>
+        </Entrar></Dados>
     </Corpo>
     <Link to="/cadastro">
       <Cadastrar>Não tem uma conta? Cadastre-se!</Cadastrar>
@@ -44,10 +47,32 @@ export default function Login() {
   function entrarApp(e) {
     e.preventDefault();
 
+    const dados = {
+      email,
+      password
+    }
+
     SetCor("#F2F2F2");
     setDisabled("disabled");
     setOpacity("70%");
     setCarregar(true);
+
+    const url_post = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login`
+    const promise = axios.post(url_post, dados)
+
+    promise.then(resposta => {
+      console.log(resposta.data)
+      navigate("/habitos")
+    })
+
+    promise.catch(err => {
+      console.log(err)
+      alert("Deu erro tente novamente")
+      SetCor("#FFFFFF");
+      setDisabled("");
+      setOpacity("100%");
+      setCarregar(false);
+    })
   }
 }
 
